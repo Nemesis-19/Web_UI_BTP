@@ -31,6 +31,7 @@ Install the Repository from GitHub
 
 ```bash
 ! git clone https://github.com/midas-research/satyam-btp.git
+%cd /content/Web_UI_BTP/
 ```
 
 Install the Required Libraries
