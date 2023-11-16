@@ -13,7 +13,7 @@ tf.random.set_seed(SEED)
 from inferencer import InferenceModel
 
 state_dict = torch.load(
-    "/content/norm_inference/model.ckpt"
+    "/content/Web_UI_BTP/norm_inference/model.ckpt"
 )
 # state_dict = torch.load("/content/speechbrain/templates/speech_recognition/LM/eb_inference/model.ckpt")
 
@@ -27,7 +27,7 @@ model.eval()
 # load the sentencepiece model
 sp = spm.SentencePieceProcessor()
 sp.load(
-    "/content/norm_inference/1000_unigram.model"
+    "/content/Web_UI_BTP/norm_inference/1000_unigram.model"
 )
 # sp.load("/content/speechbrain/templates/speech_recognition/LM/eb_inference/1000_unigram.model")
 # generate a sentence
@@ -86,7 +86,7 @@ def index():
     # Read the vocab file and prepare the vocab items
     vocab_items = []
     with open(
-        "/content/norm_inference/vocab.txt",
+        "/content/Web_UI_BTP/norm_inference/vocab.txt",
         "r",
     ) as f:
         for token_id, line in enumerate(f):
