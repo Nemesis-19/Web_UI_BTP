@@ -30,7 +30,7 @@ Tokenizer is also pretrained and the model is stored as **1000_unigram.model** f
 Install the Repository from GitHub
 
 ```bash
-! git clone https://github.com/midas-research/satyam-btp.git
+! git clone https://github.com/Nemesis-19/Web_UI_BTP.git
 %cd /content/Web_UI_BTP/
 ```
 
