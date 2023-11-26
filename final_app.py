@@ -1,8 +1,12 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 from flask_ngrok import run_with_ngrok  # Import the ngrok wrapper
 import torch
+import os
+
 import speechbrain as sb
 import sentencepiece as spm
+
+from speechbrain.pretrained import EncoderDecoderASR
 
 # for reproducability
 SEED = 34
@@ -63,12 +67,19 @@ GPT2 = TFGPT2LMHeadModel.from_pretrained("gpt2", pad_token_id=tokenizer.eos_toke
 # view model parameters
 # GPT2.summary()
 
+# Initialize the ASR model
+asr_model = EncoderDecoderASR.from_hparams(source="speechbrain/asr-crdnn-rnnlm-librispeech", savedir="pretrained_models/asr-crdnn-rnnlm-librispeech")
+
 app = Flask(__name__)
 run_with_ngrok(app)  # Starts ngrok when the app is run
 
+@app.route('/')
+def landing():
+    return render_template('landing.html')
 
-@app.route("/", methods=["GET", "POST"])
-def index():
+
+@app.route('/text-generation', methods=['GET', 'POST'])
+def text_generation():
     seed_tokens = []
     seed_vocab = []
     generated_text = ""
@@ -267,7 +278,7 @@ def index():
         )  # Example computation: count words
 
     return render_template(
-        "final_index.html",
+        "lm_index.html",
         vocab_items=vocab_items,
         seed_tokens=seed_tokens,
         seed_vocab=seed_vocab,
@@ -283,6 +294,22 @@ def index():
         word_gen_hf=word_gen_hf,
     )
 
+@app.route('/asr-inference', methods=['GET', 'POST'])
+def asr_inference():
+    if request.method == 'POST':
+        if 'audio_file' in request.files:
+            audio_file = request.files['audio_file']
+            file_path = 'uploaded_audio.wav'
+            audio_file.save(file_path)
+
+            if os.path.exists(file_path):
+                transcription = asr_model.transcribe_file(file_path)
+                return jsonify(transcription=transcription)
+            else:
+                return jsonify(transcription="File not found or is empty")
+        else:
+            return jsonify(transcription="No audio file received")
+    return render_template('asr_index.html')
 
 if __name__ == "__main__":
     app.run()  # The app will be accessible at the ngrok URL
