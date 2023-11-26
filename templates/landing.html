@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Satyam Arora BTP</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            color: #333;
+        }
+
+        h1 {
+            margin-bottom: 30px;
+            color: #007bff; /* Bootstrap primary color */
+        }
+
+        .container {
+            text-align: center;
+            padding-top: 50px;
+        }
+
+        .service-section {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 30px;
+        }
+
+        .service {
+            flex-basis: 50%;
+            padding: 20px;
+        }
+
+        .service-title {
+            font-size: 24px;
+            color: #28a745; /* Green */
+            margin-bottom: 15px;
+        }
+
+        .service img {
+            width: 80%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        /* Change the color of the buttons to yellow */
+        .btn-primary,
+        .btn-success {
+            background-color: #ffc107; /* Yellow */
+            color: #333; /* Text color for the buttons */
+            border-color: #ffc107; /* Border color for the buttons */
+        }
+
+        /* Add hover effect to buttons */
+        .btn-primary:hover,
+        .btn-success:hover {
+            background-color: #ffca2c; /* Lighter yellow on hover */
+            border-color: #ffca2c; /* Border color on hover */
+        }
+
+        .btn {
+            width: auto;
+            padding: 10px 30px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>SpeechBrain Language Modeling & Speech Recognition Interface</h1>
+
+        <div class="service-section">
+            <div class="service">
+                <div class="service-title">Text Generation</div>
+                <!-- <img src="{{ url_for('static', filename='/content/Web_UI_BTP/resources/lm_icon.png') }}" class="image" /> -->
+                <!-- <img src="/resources/lm_icon.png" alt="Text Generation"> -->
+                <a href="/text-generation" class="btn btn-primary">Launch LM Interface</a>
+            </div>
+
+            <div class="service">
+                <div class="service-title">Automatic Speech Recognition</div>
+                <!-- <img src="asr-image.jpg" alt="Automatic Speech Recognition"> -->
+                <a href="/asr-inference" class="btn btn-success">Launch ASR Interface</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

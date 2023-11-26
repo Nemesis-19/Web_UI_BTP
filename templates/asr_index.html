@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Automatic Speech Recognition Interface</title>
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #f4f4f4;
+      padding-top: 30px;
+    }
+
+    .header {
+      margin-bottom: 40px;
+      color: #333;
+    }
+
+    .control-buttons {
+      margin-bottom: 30px;
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+    }
+
+    #frequencyGraph {
+      width: 100%;
+      height: 250px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+      margin-bottom: 20px;
+    }
+
+    #transcriptionResult {
+      margin-top: 20px;
+      border: 1px solid #ddd;
+      padding: 15px;
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      min-height: 60px;
+    }
+
+    .btn-custom {
+      padding: 10px 20px;
+      font-size: 16px;
+    }
+
+    .back-button {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+    }
+  </style>
+</head>
+
+<body class="container">
+  <a href="/" class="btn btn-danger back-button">Back</a>
+  
+  <h1 class="text-center header">Record Your Speech</h1>
+
+  <div class="control-buttons">
+    <button class="btn btn-success btn-custom" onclick="startRecording()">Start Recording</button>
+    <button class="btn btn-warning btn-custom" onclick="stopRecording()">Stop Recording</button>
+  </div>
+
+  <canvas id="frequencyGraph" class="mb-3"></canvas>
+
+  <audio id="audioPlayer" controls class="w-100 mb-3"></audio>
+
+  <div class="text-center mb-4">
+    <button class="btn btn-primary btn-custom" onclick="submitAudio()">Submit for Transcription</button>
+  </div>
+
+  <div id="transcriptionResult" class="text-center">Nothing transcribed yet...</div>
+
+  <script>
+    let mediaRecorder;
+        let audioChunks = [];
+        let audioBlob;
+        let audioContext, analyser, dataArray, bufferLength;
+        let canvas, canvasCtx;
+        let animationFrameRequest;
+
+        function startRecording() {
+            canvas = document.getElementById("frequencyGraph");
+            canvasCtx = canvas.getContext("2d");
+
+            navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+                audioContext = new AudioContext();
+
+                analyser = audioContext.createAnalyser();
+                
+                const source = audioContext.createMediaStreamSource(stream);
+                source.connect(analyser);
+                
+                analyser.fftSize = 2048;
+                bufferLength = analyser.frequencyBinCount;
+                dataArray = new Uint8Array(bufferLength);
+
+                mediaRecorder = new MediaRecorder(stream);
+                mediaRecorder.ondataavailable = event => audioChunks.push(event.data);
+                mediaRecorder.start();
+
+                drawFrequency();
+            });
+        }
+
+        function stopRecording() {
+            mediaRecorder.stop();
+
+            mediaRecorder.onstop = () => {
+                audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+
+                audioChunks = [];
+                
+                document.querySelector("#audioPlayer").src = URL.createObjectURL(audioBlob);
+                
+                cancelAnimationFrame(animationFrameRequest);
+            };
+        }
+
+        function submitAudio() {
+            const formData = new FormData();
+            formData.append('audio_file', audioBlob, 'recording.wav');
+
+            document.querySelector("#transcriptionResult").innerText = "Transcription in process...";
+
+            fetch('/asr-inference', {
+                method: 'POST',
+                body: formData
+            }).then(response => response.json())
+              .then(data => {
+                  document.querySelector("#transcriptionResult").innerText = data.transcription;
+              });
+        }
+
+        function drawFrequency() {
+            animationFrameRequest = requestAnimationFrame(drawFrequency);
+
+            analyser.getByteFrequencyData(dataArray);
+
+            canvasCtx.fillStyle = 'rgb(200, 200, 200)';
+            canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
+
+            let barWidth = (canvas.width / bufferLength) * 2.5;
+            let barHeight;
+            let x = 0;
+
+            for (let i = 0; i < bufferLength; i++) {
+                barHeight = dataArray[i];
+
+                canvasCtx.fillStyle = 'rgb(' + (barHeight + 100) + ', 50, 50)';
+                canvasCtx.fillRect(x, canvas.height - barHeight / 2, barWidth, barHeight / 2);
+
+                x += barWidth + 1;
+            }
+        }
+  </script>
+</body>
+
+</html>
