@@ -42,7 +42,7 @@ It is a plug-n-play ASR model, which means all components, such as the Language 
 Install the Repository from GitHub
 
 ```bash
-! git clone https://github.com/midas-research/satyam-btp.git
+! git clone https://github.com/Nemesis-19/Web_UI_BTP.git
 ```
 
 Install the Required Libraries
